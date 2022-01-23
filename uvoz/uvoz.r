@@ -1,55 +1,46 @@
-# 2. faza: Uvoz podatkov
+install.packages("rvest")
+library(rvest)
+library(dplyr)
 
-sl <- locale("sl", decimal_mark=",", grouping_mark=".")
 
-# Funkcija, ki uvozi občine iz Wikipedije
-uvozi.obcine <- function() {
-  link <- "http://sl.wikipedia.org/wiki/Seznam_ob%C4%8Din_v_Sloveniji"
-  stran <- html_session(link) %>% read_html()
-  tabela <- stran %>% html_nodes(xpath="//table[@class='wikitable sortable']") %>%
-    .[[1]] %>% html_table(dec=",")
-  for (i in 1:ncol(tabela)) {
-    if (is.character(tabela[[i]])) {
-      Encoding(tabela[[i]]) <- "UTF-8"
-    }
-  }
-  colnames(tabela) <- c("obcina", "povrsina", "prebivalci", "gostota", "naselja",
-                        "ustanovitev", "pokrajina", "regija", "odcepitev")
-  tabela$obcina <- gsub("Slovenskih", "Slov.", tabela$obcina)
-  tabela$obcina[tabela$obcina == "Kanal ob Soči"] <- "Kanal"
-  tabela$obcina[tabela$obcina == "Loški potok"] <- "Loški Potok"
-  for (col in c("povrsina", "prebivalci", "gostota", "naselja", "ustanovitev")) {
-    if (is.character(tabela[[col]])) {
-      tabela[[col]] <- parse_number(tabela[[col]], na="-", locale=sl)
-    }
-  }
-  for (col in c("obcina", "pokrajina", "regija")) {
-    tabela[[col]] <- factor(tabela[[col]])
-  }
-  return(tabela)
+# Uvoz, obdelava in čiščenje podatkov
+uvozvarnost2015 <- function(Varnost2015){
+  linkVarnost2015 <-read_html("https://www.numbeo.com/crime/rankings_by_country.jsp?title=2015&region=150")
+  tabelavarnost2015 <- linkVarnost2015 %>% html_table(fill = TRUE)
+  Varnost2015 <- tabelavarnost2015[[2]] %>% select(-Rank)
+  return(Varnost2015)
 }
 
-# Funkcija, ki uvozi podatke iz datoteke druzine.csv
-uvozi.druzine <- function(obcine) {
-  data <- read_csv2("podatki/druzine.csv", col_names=c("obcina", 1:4),
-                    locale=locale(encoding="Windows-1250"))
-  data$obcina <- data$obcina %>% strapplyc("^([^/]*)") %>% unlist() %>%
-    strapplyc("([^ ]+)") %>% sapply(paste, collapse=" ") %>% unlist()
-  data$obcina[data$obcina == "Sveti Jurij"] <- iconv("Sveti Jurij ob Ščavnici", to="UTF-8")
-  data <- data %>% pivot_longer(`1`:`4`, names_to="velikost.druzine", values_to="stevilo.druzin")
-  data$velikost.druzine <- parse_number(data$velikost.druzine)
-  data$obcina <- parse_factor(data$obcina, levels=obcine)
-  return(data)
+uvozvarnost2016 <- function(Varnost2016){
+linkVarnost2016 <-read_html("https://www.numbeo.com/crime/rankings_by_country.jsp?title=2016&region=150&fbclid=IwAR18q8KnRFu9mFaSipSE6DJV1JLjOxZEcuuDDD2doy-v6UfjLPWl2I0avR8")
+tabelavarnost2016 <- linkVarnost2016 %>% html_table(fill = TRUE)
+Varnost2016 <- tabelavarnost2016[[2]]%>% select(-Rank)
+return(Varnost2016)
 }
 
-# Zapišimo podatke v razpredelnico obcine
-obcine <- uvozi.obcine()
+uvozvarnost2017 <- function(Varnost2017){
+  linkVarnost2017 <-read_html("https://www.numbeo.com/crime/rankings_by_country.jsp?title=2017&region=150")
+  tabelavarnost2017 <- linkVarnost2017 %>% html_table(fill = TRUE)
+  Varnost2017 <- tabelavarnost2017[[2]] %>% select(-Rank)
+  return(Varnost2017)
+}
 
-# Zapišimo podatke v razpredelnico druzine.
-druzine <- uvozi.druzine(levels(obcine$obcina))
+uvozvarnost2018 <- function(Varnost2018){
+  linkVarnost2018 <-read_html("https://www.numbeo.com/crime/rankings_by_country.jsp?title=2018&region=150")
+  tabelavarnost2018 <- linkVarnost2018 %>% html_table(fill = TRUE)
+  Varnost2018 <- tabelavarnost2018[[2]] %>% select(-Rank)
+  return(Varnost2018)
+}
 
-# Če bi imeli več funkcij za uvoz in nekaterih npr. še ne bi
-# potrebovali v 3. fazi, bi bilo smiselno funkcije dati v svojo
-# datoteko, tukaj pa bi klicali tiste, ki jih potrebujemo v
-# 2. fazi. Seveda bi morali ustrezno datoteko uvoziti v prihodnjih
-# fazah.
+uvozvarnost2019 <- function(Varnost2019){
+  linkVarnost2019 <-read_html("https://www.numbeo.com/crime/rankings_by_country.jsp?title=2018&region=150")
+  tabelavarnost2019 <- linkVarnost2019 %>% html_table(fill = TRUE)
+  Varnost2019 <- tabelavarnost2019[[2]] %>% select(-Rank)
+  return(Varnost2019)
+}
+
+Varnost2015 <- uvozvarnost2015()
+Varnost2016 <- uvozvarnost2016()
+Varnost2017 <- uvozvarnost2017()
+Varnost2018 <- uvozvarnost2018()
+Varnost2019 <- uvozvarnost2019()
