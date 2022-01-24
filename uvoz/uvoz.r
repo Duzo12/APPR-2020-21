@@ -1,6 +1,8 @@
 install.packages("rvest")
+install.packages("readxl")
 library(rvest)
 library(dplyr)
+library(readxl)
 
 
 # Uvoz, obdelava in čiščenje podatkov
@@ -39,8 +41,17 @@ uvozvarnost2019 <- function(Varnost2019){
   return(Varnost2019)
 }
 
+uvozizobrazba <- function(Izobrazba){
+  Izobrazba <- read.csv("podatki/Izobrazba.csv", skip = 5, sep = ",")
+  obdrzistolpec <- c("Country", "X2015", "X2016","X2017","X2018","X2019")
+  Izobrazba <- Izobrazba[ , obdrzistolpec]
+  names(Izobrazba) <- c("Country", "2015","2016","2017","2018","2019")
+  return(Izobrazba)
+}
+
 Varnost2015 <- uvozvarnost2015()
 Varnost2016 <- uvozvarnost2016()
 Varnost2017 <- uvozvarnost2017()
 Varnost2018 <- uvozvarnost2018()
 Varnost2019 <- uvozvarnost2019()
+Izobrazba <- uvozizobrazba()
