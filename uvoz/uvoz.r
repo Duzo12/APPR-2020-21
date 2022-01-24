@@ -9,7 +9,7 @@ library(readxl)
 uvozvarnost2015 <- function(Varnost2015){
   linkVarnost2015 <-read_html("https://www.numbeo.com/crime/rankings_by_country.jsp?title=2015&region=150")
   tabelavarnost2015 <- linkVarnost2015 %>% html_table(fill = TRUE)
-  Varnost2015 <- tabelavarnost2015[[2]] %>% select(-Rank)
+  Varnost2015 <- tabelavarnost2015[[2]] %>% select(-Rank) # -Rank spusti stolpec z imenom Rang
   return(Varnost2015)
 }
 
@@ -49,9 +49,19 @@ uvozizobrazba <- function(Izobrazba){
   return(Izobrazba)
 }
 
+uvozplace <- function(Dohodek){
+  linkdohodek <-read_html("https://en.wikipedia.org/wiki/List_of_countries_by_average_wage")
+  Dohodek <- linkdohodek %>% html_table(fill = TRUE)
+  Dohodek <- Dohodek[[1]] 
+  stolpci <- c("Country","2015","2016","2017","2018","2019")
+  Dohodek <- Dohodek[ ,stolpci]
+  return(Dohodek)
+}
+
 Varnost2015 <- uvozvarnost2015()
 Varnost2016 <- uvozvarnost2016()
 Varnost2017 <- uvozvarnost2017()
 Varnost2018 <- uvozvarnost2018()
 Varnost2019 <- uvozvarnost2019()
 Izobrazba <- uvozizobrazba()
+Dohodek <- uvozplace()
